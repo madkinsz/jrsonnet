@@ -1,5 +1,5 @@
 {
-  description = "Dotfiles manager";
+  description = "jrsonnet: Rust implementation of the jsonnet DSL.";
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs";
     flake-utils.url = "github:numtide/flake-utils";
@@ -13,9 +13,9 @@
         pkgs = import nixpkgs
           {
             inherit system;
-            overlays = [ rust-overlay.overlay ];
+            overlays = [ rust-overlay.overlays.default ];
           };
-        rust = ((pkgs.rustChannelOf { date = "2021-11-11"; channel = "nightly"; }).default.override {
+        rust = ((pkgs.rustChannelOf { channel = "stable"; }).default.override {
           extensions = [ "rust-src" ];
         });
         naersk-lib = naersk.lib."${system}".override {
@@ -33,25 +33,13 @@
           };
         };
         defaultPackage = naersk-lib.buildPackage {
-          pname = "dotman";
+          pname = "jrsonnet";
           root = ./.;
-          buildInputs = with pkgs; [
-            pkgs.sqlite
-          ];
         };
         devShell = pkgs.mkShell {
           inherit (checks.pre-commit-check) shellHook;
           nativeBuildInputs = with pkgs;[
-            pkgs.binutils
-            pkgs.pkgconfig
-            pkgs.clang
-            pkgs.x11
-            pkgs.alsaLib
-            pkgs.libudev
-            pkgs.sqlite
             rust
-            cargo-edit
-            go-jsonnet
           ];
         };
       }
